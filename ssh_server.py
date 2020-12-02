@@ -2,6 +2,7 @@ import sys
 import paramiko
 import socket
 import threading
+import time
 
 HOST_KEY = paramiko.RSAKey(filename='rsa_test.key')
 USERNAME = 'horst'
@@ -9,8 +10,9 @@ PASSWORD = 'redes4340'
 
 
 class Server(paramiko.ServerInterface):
-    def __init__(self):
+    def __init__(self, ipdirection):
         self.event = threading.Event()
+        self.addr = ipdirection
 
     def check_channel_request(self, kind, chanid):
         if kind == 'session':
@@ -20,6 +22,11 @@ class Server(paramiko.ServerInterface):
     def check_auth_password(self, username, password):
         if (username == USERNAME) and (password == PASSWORD):
             return paramiko.AUTH_SUCCESSFUL
+        else:
+            f = open("failed_attempts.txt", "a")
+            fail = "Intento de entrada fallido\n    nombre de usuario ingresado: " + username + "\n    contrasena ingresada:" + password + "\n    Direccion: " + str(self.addr) + "\n    hora: %s" % time.asctime(time.localtime())
+            f.write(fail)
+            f.close()
         return paramiko.AUTH_FAILED
 
 
@@ -46,7 +53,7 @@ def main():
         Session = paramiko.Transport(client)
         Session.add_server_key(HOST_KEY)
         paramiko.util.log_to_file('filename.log')
-        server = Server()
+        server = Server(addr)
         try:
             Session.start_server(server=server)
         except paramiko.SSHException as x:
@@ -54,7 +61,7 @@ def main():
             return
         chan = Session.accept(10)
         print('[+] Authenticated!')
-        chan.send("Bienvenido al SSH de ayudantía de redes")
+        chan.send("Bienvenido al SSH de ayudantia de redes")
         while 1:
             try:
                 command = input('Enter command: ').strip('\n')
