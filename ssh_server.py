@@ -24,7 +24,7 @@ class Server(paramiko.ServerInterface):
             return paramiko.AUTH_SUCCESSFUL
         else:
             f = open("failed_attempts.txt", "a")
-            fail = "Intento de entrada fallido\n    nombre de usuario ingresado: " + username + "\n    contrasena ingresada:" + password + "\n    Direccion: " + str(self.addr) + "\n    hora: %s" % time.asctime(time.localtime())
+            fail = "Intento de entrada fallido\n    nombre de usuario ingresado: " + username + "\n    contrasena ingresada:" + password + "\n    Direccion: " + str(self.addr) + "\n    hora: %s" % time.asctime(time.localtime()) + "\n"
             f.write(fail)
             f.close()
         return paramiko.AUTH_FAILED
